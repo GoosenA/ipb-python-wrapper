@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from requests import auth
 
 import requests
 import json
@@ -6,20 +7,13 @@ import os
 
 
 
-class HTTPAuthenticateBearer(requests.auth.AuthBase):
-    """Helper class to add Bearer Auth to requests"""
-    def __init__(self, token: str):
-        """
-        Initialise with the token
-        """
-        self.token = token
+class AuthorizationBearer(requests.auth.AuthBase):
+    def __init__(self, access_token):
+        self.access_token = access_token
 
-    def __call__(self, r: requests.Request) -> requests.Request:
-        """
-        Sets the correct header for the request
-        """
-        r.headers["Authorization"] = "Bearer " + self.token
-        return r
+    def __call__(self, request):
+        request.headers["Authorization"] = f"Bearer {self.access_token}"
+        return request
 
 
 class OpenAPIClient():
@@ -52,7 +46,7 @@ class OpenAPIClient():
         headers = {"Accept": "application/json"}
         if method == "post":
             headers["Content-Type"] = "application/x-www-form-urlencoded; charset=utf-8"
-        auth = HTTPAuthenticateBearer(self.token)
+        auth = AuthorizationBearer(self.token)
 
         response = request(f"{self.api_host}/{service_url}", params=params, data=body, headers=headers, auth=auth, timeout=self.timeout)
         try:
@@ -111,13 +105,30 @@ class OpenAPIClient():
         url = f"/za/pb/v1/accounts/{account_id}/balance"
         return self.api_call(url)
 
-    def make_inter_account_transfer(self, source_account_id, destination_account_id, amount, source_reference="", destination_reference=""):
+    def make_inter_account_transfer(self, source_account_id, transfer_details = []):
         """
         source_account_id = From where to transfer
-        destination_account_id = Where to transfer to
-        amount = Rands amount
-        source_reference = Transaction reference for source account
-        destination_reference = Transaction reference for destination account
+        
+        transfer_details = [{
+                "BeneficiaryAccountId": destination_account_id,
+                "Amount": "1.01",
+                "MyReference": "Test from PBA to PS",
+                "TheirReference": "Test1"
+        }]
         """
-        pass
+        body = {
+            "AccountId": source_account_id,
+            "TransferList": transfer_details
+        }
+
+        headers = {
+            "Content-Type": "application/json",
+        }
+
+        url = f"{self.api_host}/za/pb/v1/accounts/transfermultiple"
+        auth = AuthorizationBearer(self.token)
+        
+
+        response = requests.post(url, data=body, headers=headers, auth=auth, timeout=self.timeout)
+        return response
 
