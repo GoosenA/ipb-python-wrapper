@@ -15,7 +15,6 @@ class Singleton(type):
         return cls._instances[cls]
 
 
-
 class Client(metaclass=Singleton):
     def __init__(self, client_id: str=None, secret: str=None, timeout: int=30):
         """ Create a client instance with the provided options."""
@@ -50,10 +49,6 @@ class Client(metaclass=Singleton):
     @property
     def basic_auth_token(self):
         return self._basic_auth_token
-
-    # @basic_auth_token.setter
-    # def basic_auth_token(self, value):
-    #     self._basic_auth_token = value
 
     @property
     def basic_auth_token_expires(self):
