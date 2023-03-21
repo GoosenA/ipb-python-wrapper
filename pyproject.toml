@@ -8,6 +8,7 @@ version = "0.0.1"
 authors = [{name = "Anri Goosen", email = "aesnyma.n+pypi@gmail.com"}]
 description = "Investec Programmable Banking (OpenAPI) wrapper"
 readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.7"
 dependencies = ["requests"]
 
