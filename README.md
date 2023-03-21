@@ -1,4 +1,5 @@
-# ipb_client
+# ipb-python-wrapper
+
 Python wrapper for Investec Programmable Banking
 
 
